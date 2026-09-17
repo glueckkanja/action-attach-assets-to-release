@@ -1,24 +1,35 @@
-name: Reusable Workflow Example
+name: Attach Artifacts to Release
 description: >
-  Brief description of your workflow.
+  Attaches files (e.g. binaries, zip archives) to an existing GitHub release by release ID.
 
 inputs:
-  input1:
-    description: "input1 description"
+  github-token:
+    description: "GitHub token with write access to repository contents (releases)."
     required: true
-  input2:
-    description: "input2 description"
+  release-id:
+    description: "ID of an existing release to attach files to."
     required: false
+  files:
+    description: "Path to a single file or directory containing the files to attach to the release."
+    required: true
 
 outputs:
-  example-output:
-    description: "output description"
-    value: "output value"
+  release-id:
+    description: "The ID of the release that files were attached to."
+    value: ${{ steps.attach-artifacts.outputs.release-id }}
+  release-url:
+    description: "The HTML URL of the release."
+    value: ${{ steps.attach-artifacts.outputs.release-url }}
 
 runs:
   using: composite
   steps:
-    - name: Hello World
+    - name: Attach artifacts to release
+      id: attach-artifacts
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_ID: ${{ inputs.release-id }}
+        ARTIFACT_PATH: ${{ inputs.files }}
       run: |
-        & "${{ github.action_path }}/scripts/hello-world.ps1"
+        & "${{ github.action_path }}/scripts/attach-artifacts-to-release.ps1"

@@ -1,4 +1,4 @@
-## Attach Artifacts to Release
+## Attach Assets to Release
 
 This composite GitHub Action attaches one or more files to an existing GitHub
 release. It uses the GitHub CLI to upload release assets.
@@ -6,7 +6,7 @@ release. It uses the GitHub CLI to upload release assets.
 ### Calling the action
 
 ```yaml
-name: Attach release artifacts
+name: Attach release assets
 
 on:
   push:
@@ -17,11 +17,11 @@ permissions:
   contents: write
 
 jobs:
-  attach-artifacts:
+  attach-assets:
     runs-on: ubuntu-latest
     steps:
-      - name: Attach artifacts to release
-        uses: glueckkanja/action-attach-artifacts-to-release@sha-ref # v0.0.0
+      - name: Attach assets to release
+        uses: glueckkanja/action-attach-assets-to-release@sha-ref # v0.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_id: ${{ github.event.release.id }}

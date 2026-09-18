@@ -1,4 +1,4 @@
-name: Release Attach Artifacts to Release
+name: Release Attach Assets to Release
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Attach Artifacts to Release
+name: Attach Assets to Release
 description: >
   Attaches files (e.g. binaries, zip archives) to an existing GitHub release by release ID.
 
@@ -16,12 +16,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Attach artifacts to release
-      id: attach-artifacts
+    - name: Attach assets to release
+      id: attach-assets
       shell: pwsh
       env:
         GH_TOKEN: ${{ inputs.github_token }}
         RELEASE_ID: ${{ inputs.release_id }}
         ASSET_PATH: ${{ inputs.asset_path }}
       run: |
-        & "${{ github.action_path }}/scripts/attach-artifacts-to-release.ps1"
+        & "${{ github.action_path }}/scripts/attach-assets-to-release.ps1"

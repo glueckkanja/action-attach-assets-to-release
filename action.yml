@@ -8,18 +8,10 @@ inputs:
     required: true
   release-id:
     description: "ID of an existing release to attach files to."
-    required: false
-  files:
+    required: true
+  file-path:
     description: "Path to a single file or directory containing the files to attach to the release."
     required: true
-
-outputs:
-  release-id:
-    description: "The ID of the release that files were attached to."
-    value: ${{ steps.attach-artifacts.outputs.release-id }}
-  release-url:
-    description: "The HTML URL of the release."
-    value: ${{ steps.attach-artifacts.outputs.release-url }}
 
 runs:
   using: composite
@@ -30,6 +22,6 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         RELEASE_ID: ${{ inputs.release-id }}
-        ARTIFACT_PATH: ${{ inputs.files }}
+        ARTIFACT_PATH: ${{ inputs.file-path }}
       run: |
         & "${{ github.action_path }}/scripts/attach-artifacts-to-release.ps1"

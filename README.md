@@ -23,9 +23,9 @@ jobs:
       - name: Attach artifacts to release
         uses: glueckkanja/action-attach-artifacts-to-release@sha-ref # v0.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-id: ${{ github.event.release.id }}
-          file-path: ./release-assets-file-or-dir
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ github.event.release.id }}
+          asset_path: ./release-assets-file-or-dir
 ```
 
 ### Permissions
@@ -34,9 +34,9 @@ jobs:
 
 ### Inputs
 
-- `github-token` _(string, required)_ – GitHub token with write access to repository contents and releases
-- `release-id` _(string, required)_ – ID of the existing release to which assets are uploaded
-- `file-path` _(string, required)_ – Path to one file or a directory containing files to attach
+- `github_token` _(string, required)_ – GitHub token with write access to repository contents and releases
+- `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded
+- `asset_path` _(string, required)_ – Path to one file or a directory containing files to attach
 
 ### Supported Content Types
 

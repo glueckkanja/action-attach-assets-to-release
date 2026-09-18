@@ -3,10 +3,13 @@ description: >
   Attaches files (e.g. binaries, zip archives) to an existing GitHub release by release ID.
 
 inputs:
+  github_token:
+    description: "GitHub token with write access to repository contents (releases)."
+    required: true
   release_id:
     description: "ID of an existing release to attach files to."
     required: true
-  file_path:
+  asset_path:
     description: "Path to a single file or directory containing the files to attach to the release."
     required: true
 
@@ -17,7 +20,8 @@ runs:
       id: attach-artifacts
       shell: pwsh
       env:
+        GH_TOKEN: ${{ inputs.github_token }}
         RELEASE_ID: ${{ inputs.release_id }}
-        ARTIFACT_PATH: ${{ inputs.file_path }}
+        ASSET_PATH: ${{ inputs.asset_path }}
       run: |
         & "${{ github.action_path }}/scripts/attach-artifacts-to-release.ps1"

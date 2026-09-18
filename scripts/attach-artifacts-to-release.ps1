@@ -2,17 +2,17 @@ if ([string]::IsNullOrWhiteSpace($env:RELEASE_ID)) {
     throw 'Release ID must be provided.'
 }
 
-$ArtifactPathItem = Get-Item -Path $env:ARTIFACT_PATH.Trim() -ErrorAction SilentlyContinue
-if (-not $ArtifactPathItem) {
-    throw "No file or directory found at artifact path '$env:ARTIFACT_PATH'."
+$AssetPathItem = Get-Item -Path $env:ASSET_PATH.Trim() -ErrorAction SilentlyContinue
+if (-not $AssetPathItem) {
+    throw "No file or directory found at asset path '$env:ASSET_PATH'."
 }
 
-# check if the artifact path is a directory or a single file
-if ($ArtifactPathItem.PSIsContainer) {
-    $ResolvedArtifactPaths = @(Get-ChildItem -Path $ArtifactPathItem.FullName -File | Select-Object -ExpandProperty FullName)
+# Check if the asset path is a directory or a single file.
+if ($AssetPathItem.PSIsContainer) {
+    $ResolvedAssetPaths = @(Get-ChildItem -Path $AssetPathItem.FullName -File | Select-Object -ExpandProperty FullName)
 }
 else {
-    $ResolvedArtifactPaths = @($ArtifactPathItem.FullName)
+    $ResolvedAssetPaths = @($AssetPathItem.FullName)
 }
 
 $ContentTypesByFileExtension = @{
@@ -24,27 +24,27 @@ $ContentTypesByFileExtension = @{
     '.exe'  = 'application/vnd.microsoft.portable-executable'
 }
 
-foreach ($Artifact in $ResolvedArtifactPaths) {
-    $ArtifactName = Split-Path -Path $Artifact -Leaf
-    $EncodedArtifactName = [uri]::EscapeDataString($ArtifactName)
-    $ArtifactFileExtension = [System.IO.Path]::GetExtension($ArtifactName).ToLowerInvariant()
-    $ArtifactContentType = $ContentTypesByFileExtension[$ArtifactFileExtension]
+foreach ($Asset in $ResolvedAssetPaths) {
+    $AssetName = Split-Path -Path $Asset -Leaf
+    $EncodedAssetName = [uri]::EscapeDataString($AssetName)
+    $AssetFileExtension = [System.IO.Path]::GetExtension($AssetName).ToLowerInvariant()
+    $AssetContentType = $ContentTypesByFileExtension[$AssetFileExtension]
 
-    if (-not $ArtifactContentType) {
-        $ArtifactContentType = 'application/octet-stream'
+    if (-not $AssetContentType) {
+        $AssetContentType = 'application/octet-stream'
     }
 
-    $UploadApiPath = "https://uploads.github.com/repos/$env:GITHUB_REPOSITORY/releases/$env:RELEASE_ID/assets?name=$EncodedArtifactName"
-    $UploadResponse = gh api --method POST $UploadApiPath --header "Content-Type: $ArtifactContentType" --input $Artifact 2>&1
+    $UploadApiPath = "https://uploads.github.com/repos/$env:GITHUB_REPOSITORY/releases/$env:RELEASE_ID/assets?name=$EncodedAssetName"
+    $UploadResponse = gh api --method POST $UploadApiPath --header "Content-Type: $AssetContentType" --input $Asset 2>&1
 
     if ($LASTEXITCODE -ne 0) {
         $UploadResponseText = $UploadResponse | Out-String
 
         if ($UploadResponseText -match 'already_exists') {
-            Write-Host "::warning::Release asset '$ArtifactName' already exists on release '$env:RELEASE_ID'. Skipping."
+            Write-Host "::warning::Release asset '$AssetName' already exists on release '$env:RELEASE_ID'. Skipping."
             continue
         }
 
-        Write-Host "::warning::Failed to upload release asset '$ArtifactName' to release '$env:RELEASE_ID'. GitHub response: $UploadResponseText"
+        Write-Host "::warning::Failed to upload release asset '$AssetName' to release '$env:RELEASE_ID'. GitHub response: $UploadResponseText"
     }
 }

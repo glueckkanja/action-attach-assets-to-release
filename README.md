@@ -24,7 +24,7 @@ jobs:
         uses: glueckkanja/action-attach-assets-to-release@sha-ref # v0.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_id: ${{ github.event.release.id }}
+          release_id: 1234567
           asset_path: ./release-assets-file-or-dir
 ```
 
@@ -35,7 +35,7 @@ jobs:
 ### Inputs
 
 - `github_token` _(string, required)_ – GitHub token with write access to repository contents and releases
-- `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded
+- `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded. Usually provided by the previous versioning action.
 - `asset_path` _(string, required)_ – Path to one file or a directory containing files to attach
 - `publish_draft_release` _(string, optional, default `"false"`)_ – If set to `"true"` and the release is a draft, the release is published (draft flag removed) after the assets have been uploaded
 

@@ -53,6 +53,6 @@ foreach ($Asset in $ResolvedAssetPaths) {
             continue
         }
 
-        Write-Host "::warning::Failed to upload release asset '$AssetName' to release '$env:RELEASE_ID'. GitHub response: $UploadResponseText"
+        throw "Failed to upload release asset '$AssetName' to release '$env:RELEASE_ID'. GitHub response: $UploadResponseText"
     }
 }

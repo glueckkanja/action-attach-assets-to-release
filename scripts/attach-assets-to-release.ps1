@@ -2,6 +2,14 @@ if ([string]::IsNullOrWhiteSpace($env:RELEASE_ID)) {
     throw 'Release ID must be provided.'
 }
 
+$ReleaseInfoJson = gh api "repos/$env:GITHUB_REPOSITORY/releases/$env:RELEASE_ID" | ConvertFrom-Json
+$IsDraftRelease = $ReleaseInfoJson.draft
+$IsImmutableRelease = $ReleaseInfoJson.immutable
+
+if (-not $IsDraftRelease -and $IsImmutableRelease) {
+    throw "Release '$env:RELEASE_ID' is published and immutable. Assets cannot be attached to it."
+}
+
 $AssetPathItem = Get-Item -Path $env:ASSET_PATH.Trim() -ErrorAction SilentlyContinue
 if (-not $AssetPathItem) {
     throw "No file or directory found at asset path '$env:ASSET_PATH'."

@@ -12,6 +12,10 @@ inputs:
   asset_path:
     description: "Path to a single file or directory containing the files to attach to the release."
     required: true
+  publish_draft_release:
+    description: "If the release is a draft, publish it after the assets have been uploaded."
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -25,3 +29,12 @@ runs:
         ASSET_PATH: ${{ inputs.asset_path }}
       run: |
         & "${{ github.action_path }}/scripts/attach-assets-to-release.ps1"
+
+    - name: Publish draft release
+      if: inputs.publish_draft_release == 'true'
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RELEASE_ID: ${{ inputs.release_id }}
+      run: |
+        & "${{ github.action_path }}/scripts/publish-draft-release.ps1"

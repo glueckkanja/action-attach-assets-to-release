@@ -37,6 +37,7 @@ jobs:
 - `github_token` _(string, required)_ – GitHub token with write access to repository contents and releases
 - `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded
 - `asset_path` _(string, required)_ – Path to one file or a directory containing files to attach
+- `publish_draft_release` _(string, optional, default `"false"`)_ – If set to `"true"` and the release is a draft, the release is published (draft flag removed) after the assets have been uploaded
 
 ### Supported Content Types
 

@@ -10,6 +10,8 @@ if (-not $IsDraftRelease -and $IsImmutableRelease) {
     throw "Release '$env:RELEASE_ID' is published and immutable. Assets cannot be attached to it."
 }
 
+Write-Host "Immutable release status: $IsImmutableRelease, Draft release status: $IsDraftRelease"
+
 $AssetPathItem = Get-Item -Path $env:ASSET_PATH.Trim() -ErrorAction SilentlyContinue
 if (-not $AssetPathItem) {
     throw "No file or directory found at asset path '$env:ASSET_PATH'."

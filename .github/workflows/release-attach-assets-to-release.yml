@@ -32,7 +32,6 @@ jobs:
       bump_type: ${{ steps.version.outputs.bump_type }}
       previous_tag: ${{ steps.version.outputs.previous_tag }}
       commit_subject: ${{ steps.version.outputs.commit_subject }}
-      release_id: ${{ steps.version.outputs.release_id }}
     steps:
       - name: Generate version for release
         id: version

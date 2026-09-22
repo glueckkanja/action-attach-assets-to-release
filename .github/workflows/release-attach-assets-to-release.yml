@@ -1,0 +1,42 @@
+name: Release Attach Assets to Release
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      create_tag:
+        description: "Create a Git tag and release"
+        default: false
+        type: boolean
+      is_prerelease:
+        description: "Create a prerelease version"
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      bump_type: ${{ steps.version.outputs.bump_type }}
+      previous_tag: ${{ steps.version.outputs.previous_tag }}
+      commit_subject: ${{ steps.version.outputs.commit_subject }}
+    steps:
+      - name: Generate version for release
+        id: version
+        uses: glueckkanja/action-semantic-version@bf577c9f78f441761f3d12158310bd8ab4bcd2df # v3.0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          suppress_tag: ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.create_tag)) != true }}
+          is_prerelease: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.is_prerelease) }}

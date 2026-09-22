@@ -1,24 +1,40 @@
-name: Reusable Workflow Example
+name: Attach Assets to Release
 description: >
-  Brief description of your workflow.
+  Attaches files (e.g. binaries, zip archives) to an existing GitHub release by release ID.
 
 inputs:
-  input1:
-    description: "input1 description"
+  github_token:
+    description: "GitHub token with write access to repository contents (releases)."
     required: true
-  input2:
-    description: "input2 description"
+  release_id:
+    description: "ID of an existing release to attach files to."
+    required: true
+  asset_path:
+    description: "Path to a single file or directory containing the files to attach to the release."
+    required: true
+  publish_draft_release:
+    description: "If the release is a draft, publish it after the assets have been uploaded."
     required: false
-
-outputs:
-  example-output:
-    description: "output description"
-    value: "output value"
+    default: "false"
 
 runs:
   using: composite
   steps:
-    - name: Hello World
+    - name: Attach assets to release
+      id: attach-assets
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RELEASE_ID: ${{ inputs.release_id }}
+        ASSET_PATH: ${{ inputs.asset_path }}
       run: |
-        & "${{ github.action_path }}/scripts/hello-world.ps1"
+        & "${{ github.action_path }}/scripts/attach-assets-to-release.ps1"
+
+    - name: Publish draft release
+      if: inputs.publish_draft_release == 'true'
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RELEASE_ID: ${{ inputs.release_id }}
+      run: |
+        & "${{ github.action_path }}/scripts/publish-draft-release.ps1"

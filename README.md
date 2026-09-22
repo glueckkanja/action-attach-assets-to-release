@@ -1,50 +1,61 @@
-This file should be used to describe your reusable workflow. Please fill all of these pre-defined topics and add more content if there's more to describe.
+## Attach Assets to Release
 
-**!PLEASE KEEP IN MIND TO CONFIGURE BRANCHING AND PROTECTION RULES AS DESCRIBED IN `default_branch_protection.json`!**
--> This config can be imported at `Settings - Rulesets - New ruleset - Import a ruleset`
--> Please activate **immutable tags** under `Settings - Releases - Enable release immutability`
--> Activate **branch deletion** after pull request merge at `Settings - Pull Requests - Automatically delete head branches`
--> You can make the actions **public** or configure **accessibility** at `Settings - Actions - General - Access`
-
-## Name of The Workflow
-
-Describe or summarize the functionality of the workflow here.
+This composite GitHub Action attaches one or more files to an existing GitHub
+release. It uses the GitHub CLI to upload release assets.
 
 ### Calling the action
 
-This example yaml code block should show the usage of you workflow in very detail. Within this code block all variables should be visible so that all functionalities will be understandable.
-
 ```yaml
-# actions.yml in a consumer repository
-name: Any Example Workflow
+name: Attach release assets
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
-  example-workflow-run:
+  attach-assets:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Example of Workflow
-        uses: organization/example-workflow-repository@sha-hash # v1.2.3
+      - name: Attach assets to release
+        uses: glueckkanja/action-attach-assets-to-release@sha-ref # v0.0.0
         with:
-          any-var: "any-value"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_id: 1234567
+          asset_path: ./release-assets-file-or-dir
 ```
 
 ### Permissions
 
-- if the workflow is in need of any declared permission, describe them here
+- contents: write -> so that it is possible to upload release files
 
 ### Inputs
 
-- `any-variable` _(string, required)_ – describe input variables like this and list all of them
+- `github_token` _(string, required)_ – GitHub token with write access to repository contents and releases
+- `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded. Usually provided by the previous versioning action.
+- `asset_path` _(string, required)_ – Path to one file or a directory containing files to attach
+- `publish_draft_release` _(string, optional, default `"false"`)_ – If set to `"true"` and the release is a draft, the release is published (draft flag removed) after the assets have been uploaded
 
-### Outputs
+### Supported Content Types
 
-- `any-output` – show and list all values that may be provided by your workflow here
+The action selects the upload content type from the file extension:
 
-### Any Other Important Topics
+| Extension | Content type                                    |
+| --------- | ----------------------------------------------- |
+| `.zip`    | `application/zip`                               |
+| `.tar`    | `application/x-tar`                             |
+| `.gz`     | `application/gzip`                              |
+| `.txt`    | `text/plain`                                    |
+| `.json`   | `application/json`                              |
+| `.exe`    | `application/vnd.microsoft.portable-executable` |
 
-If there's anything else you want to bring up feel free to create a more detailed description by creating more sub-headings
+All other extensions use `application/octet-stream`.
+
+### Duplicate and Upload Errors
+
+If an asset with the same name already exists on the release, the action emits
+a warning and skips that asset. Other upload failures also produce warnings,
+the script continues processing the remaining files.

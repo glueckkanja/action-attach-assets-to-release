@@ -16,6 +16,10 @@ inputs:
     description: "If the release is a draft, publish it after the assets have been uploaded."
     required: false
     default: "false"
+  overwrite_existing_assets:
+    description: "If true, replace assets that already exist on the release with the same name instead of skipping them."
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -27,6 +31,7 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         RELEASE_ID: ${{ inputs.release_id }}
         ASSET_PATH: ${{ inputs.asset_path }}
+        OVERWRITE_EXISTING_ASSETS: ${{ inputs.overwrite_existing_assets }}
       run: |
         & "${{ github.action_path }}/scripts/attach-assets-to-release.ps1"
 

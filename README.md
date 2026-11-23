@@ -38,6 +38,7 @@ jobs:
 - `release_id` _(string, required)_ – ID of the existing release to which assets are uploaded. Usually provided by the previous versioning action.
 - `asset_path` _(string, required)_ – Path to one file or a directory containing files to attach
 - `publish_draft_release` _(string, optional, default `"false"`)_ – If set to `"true"` and the release is a draft, the release is published (draft flag removed) after the assets have been uploaded
+- `overwrite_existing_assets` _(string, optional, default `"false"`)_ – If set to `"true"`, an asset that already exists on the release with the same name is deleted and uploaded again instead of being skipped. Useful for releases on a fixed tag that are refreshed on every run.
 
 ### Supported Content Types
 
@@ -57,5 +58,6 @@ All other extensions use `application/octet-stream`.
 ### Duplicate and Upload Errors
 
 If an asset with the same name already exists on the release, the action emits
-a warning and skips that asset. Other upload failures also produce warnings,
+a warning and skips that asset, unless `overwrite_existing_assets` is `"true"`.
+In that case the existing asset is deleted before the new one is uploaded. Other upload failures also produce warnings,
 the script continues processing the remaining files.

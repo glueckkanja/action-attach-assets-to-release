@@ -23,6 +23,19 @@ else {
     $ResolvedAssetPaths = @($AssetPathItem.FullName)
 }
 
+$OverwriteExistingAssets = $env:OVERWRITE_EXISTING_ASSETS -eq 'true'
+$ExistingAssetIdsByName = @{}
+if ($OverwriteExistingAssets) {
+    $ExistingAssets = gh api --paginate "repos/$env:GITHUB_REPOSITORY/releases/$env:RELEASE_ID/assets" --jq '.[] | "\(.id)\t\(.name)"'
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to list existing assets of release '$env:RELEASE_ID'."
+    }
+    foreach ($ExistingAsset in $ExistingAssets) {
+        $ExistingAssetId, $ExistingAssetName = $ExistingAsset -split "`t", 2
+        $ExistingAssetIdsByName[$ExistingAssetName] = $ExistingAssetId
+    }
+}
+
 $ContentTypesByFileExtension = @{
     '.zip'  = 'application/zip'
     '.tar'  = 'application/x-tar'
@@ -40,6 +53,14 @@ foreach ($Asset in $ResolvedAssetPaths) {
 
     if (-not $AssetContentType) {
         $AssetContentType = 'application/octet-stream'
+    }
+
+    if ($OverwriteExistingAssets -and $ExistingAssetIdsByName.ContainsKey($AssetName)) {
+        gh api --method DELETE "repos/$env:GITHUB_REPOSITORY/releases/assets/$($ExistingAssetIdsByName[$AssetName])" | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to delete existing release asset '$AssetName' from release '$env:RELEASE_ID'."
+        }
+        Write-Host "Deleted existing release asset '$AssetName' so it can be replaced."
     }
 
     $UploadApiPath = "https://uploads.github.com/repos/$env:GITHUB_REPOSITORY/releases/$env:RELEASE_ID/assets?name=$EncodedAssetName"
